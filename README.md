@@ -31,6 +31,12 @@ PORT=5000
 
 Ganti JWT_SECRET dengan secret key acak yang kuat.
 
+Variabel Environment yang Diperlukan
+Proyek ini membutuhkan variabel berikut di dalam file .env:
+
+JWT_SECRET: Kunci rahasia (string acak yang kuat) untuk menandatangani (signing) dan memverifikasi JWT.
+PORT: Port di mana server Flask akan berjalan (misalnya: 5000).
+
 3. Menjalankan Server
 Pastikan Anda berada di folder backend/ dan virtual env aktif.
 
@@ -74,7 +80,67 @@ Respon (Sukses):
 4.4 Tes Gagal (Tanpa Token)
 Ini untuk membuktikan endpoint aman dan akan mengembalikan error 401.
 
+5. Daftar Endpoint API
+
+Berikut adalah daftar endpoint yang tersedia.
+
+### 1. Autentikasi
+
+**`POST /auth/login`** (Publik)
+* **Tujuan:** Mengautentikasi pengguna dan mendapatkan access token.
+* **Request Body:**
+    ```json
+    { "email": "string", "password": "string" }
+    ```
+* **Response 200 (OK):**
+    ```json
+    { "access_token": "<jwt_token>" }
+    ```
+* **Response 401 (Unauthorized):**
+    ```json
+    { "error": "Invalid credentials" }
+    ```
+
+### 2. Items (Marketplace)
+
+**`GET /items`** (Publik)
+* **Tujuan:** Mendapatkan daftar semua item yang tersedia.
+* **Response 200 (OK):**
+    ```json
+    {
+      "items": [
+        { "id": 1, "name": "Laptop Canggih", "price": 15000000 }
+      ]
+    }
+    ```
+
+### 3. Profil User
+
+**`PUT /profile`** (Terproteksi, Wajib JWT)
+* **Tujuan:** Memperbarui profil pengguna yang sedang login.
+* **Header Wajib:** `Authorization: Bearer <jwt_token>`
+* **Request Body:** (Minimal salah satu field)
+    ```json
+    { "name": "string", "email": "string" }
+    ```
+* **Response 200 (OK):**
+    ```json
+    {
+      "message": "Profile updated",
+      "profile": { "id": "user1", "name": "User Satu Baru", "email": "user1@example.com" }
+    }
+    ```
+* **Response 401 (Unauthorized):** (Jika token tidak ada, tidak valid, atau expired)
+    ```json
+    { "error": "Missing or invalid Authorization header" }
+    ```
 curl.exe -s -X PUT http://localhost:5000/profile -H "Content-Type: application/json" -d "{\"name\":\"Nama Gagal\"}"
 
 Respon (Gagal 401):
 {"error":"Missing or invalid Authorization header"}
+
+## 6. Catatan Kendala & Asumsi
+
+* **Penyimpanan Data:** Database pengguna (`USERS`) dan item (`ITEMS`) masih bersifat *in-memory* (hardcode di dalam `app.py`). Data akan reset (kembali ke awal) setiap kali server dimulai ulang.
+* **Keamanan Password:** Password pengguna disimpan sebagai *plain text* (teks biasa) di dalam kode. Dalam aplikasi produksi, password **wajib** di-hash (misalnya menggunakan `werkzeug.security.generate_password_hash`).
+* **Validasi:** Validasi input masih sangat sederhana (hanya cek `if 'name' in data`). Belum ada pemeriksaan apakah email valid atau apakah nama tidak kosong.
