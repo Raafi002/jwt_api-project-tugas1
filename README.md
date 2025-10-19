@@ -56,9 +56,9 @@ PORT: Port di mana server Flask akan berjalan (misalnya: 5000).
 
 3. Menjalankan Server
 Pastikan Anda berada di folder backend/ dan virtual env aktif.
-
+```
 python app.py
-
+```
 Server akan berjalan di http://localhost:5000.
 
 4. Pengujian Endpoint (cURL)
